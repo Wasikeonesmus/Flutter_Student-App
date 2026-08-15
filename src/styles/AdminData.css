@@ -1,0 +1,147 @@
+.header-flex {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.toolbar-row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.search-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  min-width: 260px;
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+}
+
+.search-container input {
+  background: none;
+  border: none;
+  color: white;
+  width: 100%;
+  font-size: 0.9rem;
+  outline: none;
+}
+
+.search-container input::placeholder {
+  color: #525252;
+}
+
+.filter-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+}
+
+.filter-group select {
+  background: transparent;
+  border: none;
+  color: white;
+  outline: none;
+  cursor: pointer;
+}
+
+.table-card {
+  padding: 4px;
+  overflow-x: auto;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 720px;
+}
+
+.admin-table th {
+  text-align: left;
+  padding: 14px 18px;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #737373;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.admin-table td {
+  padding: 14px 18px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+  color: #e5e5e5;
+  font-size: 0.9rem;
+  vertical-align: middle;
+}
+
+.admin-table tr:hover td {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.badge-success { background: rgba(34, 197, 94, 0.15); color: #4ade80; }
+.badge-warning { background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
+.badge-error { background: rgba(239, 68, 68, 0.15); color: #f87171; }
+.badge-muted { background: rgba(148, 163, 184, 0.12); color: #94a3b8; }
+
+.btn-row {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.btn-sm {
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--panel-border);
+  background: rgba(255, 255, 255, 0.04);
+  color: #e5e5e5;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.btn-sm:hover { background: rgba(255, 255, 255, 0.08); }
+.btn-sm.danger { border-color: rgba(239, 68, 68, 0.4); color: #fca5a5; }
+.btn-sm.primary { background: var(--primary); border-color: var(--primary); color: white; }
+
+.detail-drawer {
+  margin-top: 20px;
+  padding: 20px;
+}
+
+.detail-drawer h4 {
+  margin-bottom: 12px;
+  color: white;
+}
+
+.muted { color: var(--text-muted); font-size: 0.875rem; }
+.empty-state { padding: 40px; text-align: center; color: var(--text-muted); }
+
+.cheat-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: rgba(239, 68, 68, 0.15);
+  color: #fca5a5;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.mono { font-family: ui-monospace, monospace; font-size: 0.8rem; }

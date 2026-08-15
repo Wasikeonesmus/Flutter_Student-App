@@ -1,0 +1,87 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Node
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Sensitive configuration files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+google-services.json
+google-services (2).json
+android-app/app/google-services.json
+
+# Gradle caches
+**/.gradle/
+**/.gradle_new/
+
+# Large archive files
+*.zip
+
+# Temporary Microsoft Office files
+~$*
+# Android generated files
+android-app/app/build/
+android-app/.gradle/
+android-app/.gradle_new/
+
+# All generated build folders
+build/
+**/build/
+
+# Gradle caches
+.gradle/
+**/.gradle/
+.gradle_new/
+**/.gradle_new/
+
+# Firebase cache
+.firebase/
+
+# Archives
+*.zip
+
+# Temporary Office files
+~$*
+gradle-8.5-temp/
+
+gradle-8.0/
+
+# Android local/debug files
+android-app/local.properties
+android-app/logcat.txt
+android-app/logcat_dump.txt
+android-app/test_parser.kts
+android-app/test_regex.py
+
+# Gradle temporary downloads
+**/.gradle_tmp/
+gradle-8.0/
+gradle-8.5-temp/
+
+# Python cache
+__pycache__/
+*.pyc

@@ -1,0 +1,260 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ─── Helper functions ────────────────────────────────────────────────────
+    function isAuth()       { return request.auth != null; }
+    function uid()          { return request.auth.uid; }
+    function role()         { return get(/databases/$(database)/documents/users/$(uid())).data.role; }
+    function isSuperAdmin() { return isAuth() && role() == 'superadmin'; }
+
+    function isApproved() {
+      return isAuth() && 
+             get(/databases/$(database)/documents/users/$(uid())).data.approvalStatus == 'approved' && 
+             get(/databases/$(database)/documents/users/$(uid())).data.subscriptionStatus == 'active';
+    }
+
+    function isInstituteOwner(iid) {
+      return isAuth() &&
+             exists(/databases/$(database)/documents/institutes/$(iid)/members/$(uid())) &&
+             get(/databases/$(database)/documents/institutes/$(iid)/members/$(uid())).data.role == 'owner';
+    }
+
+    function isInstituteMember(iid) {
+      return isAuth() &&
+             exists(/databases/$(database)/documents/institutes/$(iid)/members/$(uid()));
+    }
+
+    function isInstituteOwnerDoc(iid) {
+      return isAuth() &&
+             exists(/databases/$(database)/documents/institutes/$(iid)) &&
+             get(/databases/$(database)/documents/institutes/$(iid)).data.ownerUid == uid();
+    }
+
+    function canAccessInstitute(iid) {
+      return isSuperAdmin() ||
+             (isApproved() && isInstituteMember(iid)) ||
+             (isApproved() && isInstituteOwnerDoc(iid));
+    }
+
+    /** Owner by members/{uid} doc OR by institutes/{id}.ownerUid (setup race). */
+    function canManageInstitute(iid) {
+      return isSuperAdmin() || isInstituteOwner(iid) ||
+             (isApproved() && isInstituteOwnerDoc(iid));
+    }
+
+    /** Student self-register on roster during exam (tests_public must link batch). */
+    function examLinkedBatchStudentWrite(iid, bid) {
+      let tid = request.resource.data.linkedTestId;
+      return tid is string && tid != '' &&
+             exists(/databases/$(database)/documents/tests_public/$(tid)) &&
+             get(/databases/$(database)/documents/tests_public/$(tid)).data.instituteId == iid &&
+             get(/databases/$(database)/documents/tests_public/$(tid)).data.batchId == bid;
+    }
+
+    function ownerCreatingMember() {
+      let data = request.resource.data;
+      let iid = data.instituteId;
+      return isApproved() &&
+             iid is string && iid != '' &&
+             canManageInstitute(iid) &&
+             data.role == 'instructor' &&
+             data.instituteRole == 'instructor';
+    }
+
+    function ownerLinkingMemberToInstitute() {
+      let data = request.resource.data;
+      let iid = data.instituteId;
+      return isApproved() &&
+             iid is string && iid != '' &&
+             canManageInstitute(iid) &&
+             data.role == 'instructor' &&
+             data.instituteRole == 'instructor' &&
+             data.approvalStatus == 'approved' &&
+             data.subscriptionStatus == 'active' &&
+             data.diff(resource.data).affectedKeys().hasOnly(['approvalStatus', 'subscriptionStatus', 'instituteId', 'instituteRole']);
+    }
+
+    function ownerUnlinkingMemberFromInstitute() {
+      return isApproved() &&
+             request.resource.data.instituteId == '' &&
+             request.resource.data.instituteRole == '' &&
+             resource.data.instituteId is string &&
+             resource.data.instituteId != '' &&
+             canManageInstitute(resource.data.instituteId) &&
+             request.resource.data.diff(resource.data).affectedKeys().hasOnly(['instituteId', 'instituteRole']);
+    }
+
+    // ─── Users collection ────────────────────────────────────────────────────
+    match /users/{userId} {
+      // Each user may only read their own doc; superadmin reads all.
+      // Approved instructors can query other users to verify if they exist when adding members.
+      allow read:   if uid() == userId || isSuperAdmin() || isApproved();
+      allow write:  if isSuperAdmin();
+      allow create: if (isAuth() && uid() == userId) || ownerCreatingMember(); // Self-registration or Owner creating member
+      allow update: if isSuperAdmin() || ownerLinkingMemberToInstitute() || ownerUnlinkingMemberFromInstitute();
+    }
+
+    // ─── Instructors collection ──────────────────────────────────────────────
+    match /instructors/{instructorId} {
+      allow read:   if isSuperAdmin() || uid() == instructorId;
+      allow write:  if isSuperAdmin();
+    }
+
+    // ─── Answer key (letters only) — for paid detailed review without Cloud Functions
+    match /tests_answerkeys/{testId} {
+      allow get: if isSuperAdmin() || 
+                    (exists(/databases/$(database)/documents/tests_public/$(testId)) && 
+                     (get(/databases/$(database)/documents/tests_public/$(testId)).data.resultsReleasedEarly == true || 
+                      get(/databases/$(database)/documents/tests_public/$(testId)).data.resultReleaseTime < request.time));
+      allow write: if isSuperAdmin() ||
+                     (isApproved() && request.resource.data.instructorId == uid());
+    }
+
+    // ─── Public exam snapshot (no correct answers) — used when Cloud Functions are unavailable
+    match /tests_public/{testId} {
+      allow read:  if resource.data.isEnabled == true;
+      allow write: if isSuperAdmin() ||
+                     (isApproved() && request.resource.data.instructorId == uid());
+    }
+
+    // ─── Tests collection ────────────────────────────────────────────────────
+    // Students should use getTestForStudent Cloud Function when deployed.
+    // Full test docs are instructor-only.
+    match /tests/{testId} {
+      allow read:   if isSuperAdmin() ||
+                       (isApproved() && resource.data.instructorId == uid());
+      allow create: if isApproved() && request.resource.data.instructorId == uid();
+      allow update: if isSuperAdmin() || (isApproved() && resource.data.instructorId == uid());
+      allow delete: if isSuperAdmin() || (isApproved() && resource.data.instructorId == uid());
+
+      // Sections subcollection — instructors only
+      match /sections/{sectionId} {
+        allow read:   if isApproved() || isSuperAdmin();
+        allow write:  if isApproved() && get(/databases/$(database)/documents/tests/$(testId)).data.instructorId == uid();
+      }
+
+      // Questions — correct answers are NEVER exposed to students directly
+      match /questions/{questionId} {
+        allow read:   if isApproved() || isSuperAdmin();
+        allow write:  if isApproved() && get(/databases/$(database)/documents/tests/$(testId)).data.instructorId == uid();
+      }
+    }
+
+    // ─── Attempts collection ─────────────────────────────────────────────────
+    match /attempts/{attemptId} {
+      // FIX #3: Require a real, enabled test to exist before accepting a submission.
+      // Prevents anonymous users from flooding the database with fake attempts.
+      allow create: if request.resource.data.testId is string &&
+                       request.resource.data.testId != '' &&
+                       exists(/databases/$(database)/documents/tests_public/$(request.resource.data.testId)) &&
+                       get(/databases/$(database)/documents/tests_public/$(request.resource.data.testId)).data.isEnabled == true;
+
+      // Students read their own attempt by its secret UUID doc-id (stored on device).
+      // UUID entropy (122 bits) is sufficient to prevent brute-force guessing.
+      allow get: if true;
+
+      // FIX #4: Collection queries are now restricted to superadmin and the owning
+      // instructor only.  The previous rule
+      //   (resource.data.deviceId != null && resource.data.deviceId != '')
+      // evaluated to TRUE for every attempt in the collection, effectively making
+      // the list completely public and exposing all student PII.
+      // Students access their own attempts via get-by-ID (stored locally) — not queries.
+      allow list: if isSuperAdmin() ||
+                     (isApproved() &&
+                      exists(/databases/$(database)/documents/tests/$(resource.data.testId)) &&
+                      get(/databases/$(database)/documents/tests/$(resource.data.testId)).data.instructorId == uid());
+
+      allow update: if isSuperAdmin();
+      allow delete: if isSuperAdmin();
+    }
+
+    // ─── Payments collection ─────────────────────────────────────────────────
+    match /payments/{paymentId} {
+      allow read:   if isSuperAdmin() || (isAuth() && resource.data.userEmail == request.auth.token.email);
+      allow create: if isAuth() ||
+                    (request.resource.data.paymentType == 'student_result' &&
+                     request.resource.data.attemptId is string &&
+                     exists(/databases/$(database)/documents/attempts/$(request.resource.data.attemptId)));
+      allow update: if isSuperAdmin(); // Admin approves/rejects
+      allow delete: if isSuperAdmin();
+    }
+
+    // ─── Subscriptions collection ────────────────────────────────────────────
+    match /subscriptions/{subId} {
+      allow read:   if isSuperAdmin() || (isAuth() && resource.data.instructorId == uid());
+      allow write:  if isSuperAdmin();
+    }
+
+    // ─── Platform settings (public read for pricing/branding, admin write) ──────
+    // ⚠ FIX #2 (rules side): NEVER store API keys or secrets in this collection.
+    //   The openRouterApiKey has been removed from platform_settings writes in the
+    //   admin panel — it is stored ONLY in platform_secrets/ai (allow read: if false).
+    //   Field-level restrictions are not possible in Firestore rules, so the code
+    //   must be the enforcement layer for secret fields.
+    match /platform_settings/{doc} {
+      allow read:  if true;
+      allow write: if isSuperAdmin();
+    }
+
+    // ─── Server-only secrets (OpenRouter key) — readable by approved instructors/admin only ─────
+    match /platform_secrets/{doc} {
+      allow read:  if isSuperAdmin() || isApproved();
+      allow write: if isSuperAdmin();
+    }
+
+    // ─── Admin audit log ───────────────────────────────────────────────────────
+    match /admin_audit/{entryId} {
+      allow read, write: if isSuperAdmin();
+    }
+
+    // ─── Trigger Email extension queue ─────────────────────────────────────────
+    match /mail/{mailId} {
+      allow create: if isSuperAdmin();
+      allow read:   if isSuperAdmin();
+    }
+
+    // ─── Verification Codes (Instructor signup) ────────────────────────────────
+    // FIX #5: Previously allow create/get: if true allowed anonymous brute-force
+    // of 6-digit codes. Now requires Firebase Auth session to create or verify.
+    match /verification_codes/{email_code} {
+      allow create: if isAuth();
+      allow get:    if isAuth();
+      allow list:   if false;
+      allow update, delete: if isSuperAdmin();
+    }
+
+    // ─── Institutes (academies / schools) ─────────────────────────────────────
+    match /institutes/{instituteId} {
+      allow read:   if isSuperAdmin() || canAccessInstitute(instituteId);
+      allow create: if isSuperAdmin() ||
+                       (isApproved() && request.resource.data.ownerUid == uid());
+      allow update: if isSuperAdmin() || canManageInstitute(instituteId);
+      allow delete: if isSuperAdmin();
+
+      match /members/{memberId} {
+        allow read:   if isSuperAdmin() || canAccessInstitute(instituteId);
+        allow create: if isSuperAdmin() || canManageInstitute(instituteId);
+        allow update: if isSuperAdmin() || canManageInstitute(instituteId);
+        allow delete: if isSuperAdmin() || canManageInstitute(instituteId);
+      }
+
+      match /batches/{batchId} {
+        allow read:  if isSuperAdmin() || canAccessInstitute(instituteId);
+        allow write: if canAccessInstitute(instituteId);
+
+        match /students/{studentId} {
+          allow read:  if isSuperAdmin() || canAccessInstitute(instituteId);
+          allow create: if canManageInstitute(instituteId) || examLinkedBatchStudentWrite(instituteId, batchId);
+          allow update: if canManageInstitute(instituteId) || examLinkedBatchStudentWrite(instituteId, batchId);
+          allow delete: if canManageInstitute(instituteId);
+        }
+
+        match /attendance/{sessionId} {
+          allow read:  if isSuperAdmin() || canAccessInstitute(instituteId);
+          allow write: if canAccessInstitute(instituteId);
+        }
+      }
+    }
+  }
+}

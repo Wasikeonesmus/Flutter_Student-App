@@ -1,0 +1,151 @@
+.stat-card {
+  padding: 20px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #171717; /* High contrast panel bg */
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: all 0.2s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+.stat-icon-wrapper {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stat-value {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: white;
+  margin: 0;
+  line-height: 1;
+}
+
+.stat-label {
+  font-size: 0.65rem;
+  color: #a3a3a3;
+  margin-top: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 700;
+}
+
+/* Recent Activity */
+.recent-activity {
+  padding: 24px;
+  background: #171717;
+  min-height: 400px; /* Fill vertical space */
+}
+
+.panel-header {
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.panel-title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: white;
+}
+
+.activity-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.activity-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 10px;
+  background: #202020;
+  border: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.activity-icon-bg {
+  width: 32px;
+  height: 32px;
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.activity-info {
+  flex: 1;
+}
+
+.activity-text {
+  font-size: 0.875rem;
+  color: #e5e5e5;
+  margin: 0;
+}
+
+.activity-time {
+  font-size: 0.7rem;
+  color: #737373;
+}
+
+/* System Status Breakdown */
+.sub-breakdown {
+  padding: 24px;
+  background: #171717;
+  min-height: 400px;
+}
+
+.status-item {
+  margin-bottom: 24px;
+}
+
+.status-label {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #d4d4d4;
+}
+
+.progress-bar {
+  height: 8px;
+  background: #262626;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: #ef4444;
+  border-radius: 4px;
+  box-shadow: 0 0 10px rgba(239, 68, 68, 0.3);
+}
+
+.progress-fill.warn {
+  background: var(--warning);
+  box-shadow: 0 0 10px rgba(245, 158, 11, 0.3);
+}
+
+.breakdown-note {
+  margin-top: 32px;
+  font-size: 0.75rem;
+  color: #737373;
+  text-align: center;
+}
+
+.value-high { color: #4ade80; font-weight: 800; }
+.value-warn { color: #fbbf24; font-weight: 800; }

@@ -1,0 +1,72 @@
+/* ── Audit Log styles ── */
+
+.audit-when {
+  white-space: nowrap;
+  font-size: 0.82rem;
+}
+
+.audit-email {
+  font-size: 0.85rem;
+  color: #d4d4d4;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Action badge colours */
+.audit-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+
+.audit-blue   { background: rgba(59,130,246,0.15);  color: #93c5fd; }
+.audit-purple { background: rgba(168,85,247,0.15);  color: #d8b4fe; }
+.audit-green  { background: rgba(34,197,94,0.15);   color: #4ade80; }
+.audit-red    { background: rgba(239,68,68,0.15);   color: #f87171; }
+.audit-orange { background: rgba(249,115,22,0.15);  color: #fb923c; }
+.audit-yellow { background: rgba(234,179,8,0.15);   color: #facc15; }
+.audit-muted  { background: rgba(148,163,184,0.1);  color: #94a3b8; }
+
+/* Details pills */
+.audit-details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  max-width: 520px;
+}
+
+.audit-detail-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0;
+  border-radius: 6px;
+  overflow: hidden;
+  font-size: 0.78rem;
+  border: 1px solid rgba(255,255,255,0.07);
+}
+
+.audit-detail-key {
+  padding: 3px 8px;
+  background: rgba(255,255,255,0.06);
+  color: #a3a3a3;
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: 0.02em;
+}
+
+.audit-detail-val {
+  padding: 3px 9px;
+  background: rgba(255,255,255,0.03);
+  color: #e5e5e5;
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

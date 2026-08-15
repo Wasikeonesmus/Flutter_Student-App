@@ -1,0 +1,26 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    // Payment receipts: images OR PDFs, authenticated user's own folder only
+    match /payment_screenshots/{userId}/{fileName} {
+      allow read:  if request.auth.uid == userId ||
+                      firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data.role == 'superadmin';
+      allow write: if request.auth != null && request.auth.uid == userId &&
+                      request.resource.size < 10 * 1024 * 1024 && // 10 MB max
+                      (request.resource.contentType.matches('image/.*') ||
+                       request.resource.contentType == 'application/pdf');
+      allow delete: if firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data.role == 'superadmin';
+    }
+
+    // Instructor branding logos (Pro / Institute) — stored in Storage, URL saved in Firestore
+    match /branding/{userId}/{fileName} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && request.auth.uid == userId &&
+                      request.resource.size < 5 * 1024 * 1024 &&
+                      request.resource.contentType.matches('image/.*');
+      allow delete: if request.auth != null && request.auth.uid == userId;
+    }
+  }
+}
+

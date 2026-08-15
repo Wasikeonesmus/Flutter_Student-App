@@ -1,0 +1,95 @@
+.institute-page .page-header {
+  margin-bottom: 24px;
+}
+
+.institute-page .page-header h1 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: white;
+}
+
+.institute-page .page-header p {
+  color: var(--text-muted);
+  margin-top: 6px;
+}
+
+.institute-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.institute-card {
+  padding: 20px;
+}
+
+.institute-card-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.institute-card-head h3 {
+  font-size: 1.1rem;
+  color: white;
+}
+
+.institute-owner,
+.institute-meta {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+
+.institute-stats {
+  display: flex;
+  gap: 16px;
+  margin: 14px 0;
+  font-size: 0.85rem;
+  color: white;
+}
+
+.institute-stats span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.institute-hint {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  line-height: 1.4;
+}
+
+.empty-institute {
+  padding: 48px;
+  text-align: center;
+  color: white;
+}
+
+.empty-institute .empty-icon {
+  margin-bottom: 12px;
+  opacity: 0.6;
+}
+
+.muted {
+  color: var(--text-muted);
+}
+
+.institute-member-list {
+  list-style: none;
+  font-size: 0.85rem;
+}
+
+.institute-member-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  color: #e5e5e5;
+}

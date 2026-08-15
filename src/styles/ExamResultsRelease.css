@@ -1,0 +1,73 @@
+.results-release-table-wrap {
+  padding: 0;
+  overflow: hidden;
+}
+
+.results-release-table {
+  width: 100%;
+}
+
+.results-release-table td,
+.results-release-table th {
+  vertical-align: middle;
+}
+
+.exam-meta {
+  font-size: 0.75rem;
+  color: #737373;
+  margin-top: 4px;
+}
+
+.exam-id-code {
+  font-size: 0.85rem;
+  background: rgba(255, 255, 255, 0.06);
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.release-schedule {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  font-size: 0.75rem;
+  color: #a3a3a3;
+  margin-top: 8px;
+  max-width: 280px;
+  line-height: 1.4;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.btn-release-now {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #b71c1c, #880e4f);
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.btn-release-now:hover:not(:disabled) {
+  filter: brightness(1.1);
+}
+
+.btn-release-now:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.released-done {
+  font-size: 0.875rem;
+  color: #22c55e;
+  font-weight: 500;
+}
